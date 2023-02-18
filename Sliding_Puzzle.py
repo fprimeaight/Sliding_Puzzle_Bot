@@ -15,7 +15,7 @@ class Board:
 
         self.blank_tile_pos = (3,3)
 
-    def Display(self):
+    def TerminalDisplay(self):
         for i in range(self.size):
             line = ''
             for j in range(self.size):
@@ -52,6 +52,7 @@ class Board:
 
 def main():
     b = Board()
+ 
     while b.board == b.final_board_pos:
         for i in range(randint(20,100)):
             move_index = randint(0,3)
@@ -64,7 +65,7 @@ def main():
             else:
                 b.MoveRight()
 
-    b.Display()
+    b.TerminalDisplay()
     print()
 
     while b.board != b.final_board_pos:
@@ -79,9 +80,9 @@ def main():
             b.MoveRight()
         else:
             print("Error: Wrong input")
-        b.Display()
+        b.TerminalDisplay()
         
-        print('Puzzle Completed!')
+    print('Puzzle Completed!')
 
 if __name__ == '__main__':
     main()
