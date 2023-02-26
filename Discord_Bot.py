@@ -35,8 +35,6 @@ def GenerateBoard(board_obj):
         else:
             board_obj.MoveRight()
     
-    
-
 @bot.event
 async def on_ready():
     print('Bot is ready!')
@@ -47,7 +45,6 @@ async def on_ready():
 
 @bot.tree.command(name='play')
 async def play(interaction: discord.Interaction):
-    print(interaction.user.id)
     user_id = interaction.user.id
     if user_id not in hashmap:
         b = Board()
@@ -61,36 +58,88 @@ async def play(interaction: discord.Interaction):
                         description=f'Enter your next move!\n\n{text}',
                         color=0x5865F2)
     
-    response = await interaction.response.send_message(embed=embed)
-    response = await interaction.original_response()
+    # Adding button functionality
+    left_button = discord.ui.Button(style=discord.ButtonStyle.blurple, emoji='⬅️')
+    right_button = discord.ui.Button(style=discord.ButtonStyle.blurple, emoji='➡️')
+    up_button = discord.ui.Button(style=discord.ButtonStyle.blurple, emoji='⬆️')
+    down_button = discord.ui.Button(style=discord.ButtonStyle.blurple, emoji='⬇️')
+    
+    view = discord.ui.View()   
 
-    reactions = ['⬅️','⬆️','⬇️','➡️']
+    view.add_item(left_button)
+    view.add_item(up_button)
+    view.add_item(down_button)
+    view.add_item(right_button)
 
-    while b.board != b.final_board_pos:
-        for reaction in reactions:
-            await response.add_reaction(reaction)
-        reaction,user = await bot.wait_for('reaction_add',
-                                            check = lambda r,user: user == interaction.user and r.emoji in reactions)
-        await reaction.remove(user)
-
-        if reaction.emoji == reactions[0]:
-            b.MoveLeft()
-        elif reaction.emoji == reactions[1]:
-            b.MoveUp()
-        elif reaction.emoji == reactions[2]:
-            b.MoveDown()
-        elif reaction.emoji == reactions[3]:
-            b.MoveRight()
-        
+    async def left_button_callback(interaction):
+        b.MoveLeft()
         text = BoardDisplay(b)
-        embed = discord.Embed(title='Playing...',
-                            description=f'Enter your next move!\n\n{text}',
-                            color=0x5865F2)
-        response = await interaction.edit_original_response(embed=embed)
-
-    embed = discord.Embed(title='You WON! 🏆',
+        
+        if b.board == b.final_board_pos:
+            embed = discord.Embed(title='You WON! 🏆',
                                 description=f'You completed the puzzle!\n\n{text}',
-                                color=0x65D532)  
-    response = await interaction.edit_original_response(embed=embed)
+                                color=0x65D532)
+            response = await interaction.response.edit_message(embed=embed,view=None)
+            del hashmap[user_id]
+        else:
+            embed = discord.Embed(title='Playing...',
+                                description=f'Enter your next move!\n\n{text}',
+                                color=0x5865F2)
+            response = await interaction.response.edit_message(embed=embed,view=view)
+    
+    async def up_button_callback(interaction):
+        b.MoveUp()
+        text = BoardDisplay(b)
+        
+        if b.board == b.final_board_pos:
+            embed = discord.Embed(title='You WON! 🏆',
+                                description=f'You completed the puzzle!\n\n{text}',
+                                color=0x65D532)
+            response = await interaction.response.edit_message(embed=embed,view=None)
+            del hashmap[user_id]
+        else:
+            embed = discord.Embed(title='Playing...',
+                                description=f'Enter your next move!\n\n{text}',
+                                color=0x5865F2)
+            response = await interaction.response.edit_message(embed=embed,view=view)
+
+    async def down_button_callback(interaction):
+        b.MoveDown()
+        text = BoardDisplay(b)
+        
+        if b.board == b.final_board_pos:
+            embed = discord.Embed(title='You WON! 🏆',
+                                description=f'You completed the puzzle!\n\n{text}',
+                                color=0x65D532)
+            response = await interaction.response.edit_message(embed=embed,view=None)
+            del hashmap[user_id]
+        else:
+            embed = discord.Embed(title='Playing...',
+                                description=f'Enter your next move!\n\n{text}',
+                                color=0x5865F2)
+            response = await interaction.response.edit_message(embed=embed,view=view)
+
+    async def right_button_callback(interaction):
+        b.MoveRight()
+        text = BoardDisplay(b)
+        
+        if b.board == b.final_board_pos:
+            embed = discord.Embed(title='You WON! 🏆',
+                                description=f'You completed the puzzle!\n\n{text}',
+                                color=0x65D532)
+            response = await interaction.response.edit_message(embed=embed,view=None)
+            del hashmap[user_id]
+        else:
+            embed = discord.Embed(title='Playing...',
+                                description=f'Enter your next move!\n\n{text}',
+                                color=0x5865F2)
+            response = await interaction.response.edit_message(embed=embed,view=view)
+            
+    left_button.callback = left_button_callback
+    up_button.callback = up_button_callback
+    down_button.callback = down_button_callback
+    right_button.callback = right_button_callback
+    
+    response = await interaction.response.send_message(embed=embed,view=view)
 
 bot.run(config.TOKEN)
