@@ -124,9 +124,8 @@ async def play(interaction: discord.Interaction):
                 view = initialise_view()
                 ephemeral = False
         else:
-            embed = discord.Embed(title='Playing...',
-                                    description=f'Enter your next move!\n\n{text}',
-                                    color=0xDA5252)
+            embed = discord.Embed(description=f"You cannot play other people's games!\n\n",
+                                color=0xDA5252)
             view = None
             ephemeral = True  
 
